@@ -5,7 +5,7 @@
 # -way
 演示：
 [wen@archlinux patch_source]$ python Xcli.py
-# -add song_name
+# -add song_name 可以提交bid  BV号
 name Of song :
 in the end
 # -program do
