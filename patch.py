@@ -2,6 +2,7 @@ import requests
 import json
 import re
 from lxml import etree
+import time
 import os
 
 requests.packages.urllib3.disable_warnings()
@@ -23,6 +24,7 @@ def download(homeurl,url, names, session=requests.session()):
     begin = 0
     end = 1024*512-1
     flag=0
+    print('进度：',end='')
     while True:
         headers.update({'Range': 'bytes='+str(begin) + '-' + str(end)})
         res = session.get(url=url, headers=headers,verify=False)
@@ -36,11 +38,12 @@ def download(homeurl,url, names, session=requests.session()):
         with open(name, 'ab') as fp:
             fp.write(res.content)
             fp.flush()
+            print('▓▓',end = '')
 
-            print('done')
 
         # data=data+res.content
         if flag==1:
+            print('||done')
             fp.close()
             break
 
@@ -59,6 +62,18 @@ def GetBiliVideo(bid,pname):
     name = name.replace('</title>','')
     name = name.replace('_哔哩哔哩_bilibili','')
     print(name)
+
+    html = etree.HTML(res.content)
+    video_xml = str(html.xpath('//html/head/script[4]/text()')[0])
+    video_xml = video_xml.replace('window.__playinfo__=','')
+
+
+    video_json = json.loads(video_xml,strict=False)
+
+    #VideoURL = video_json['data']['dash']['video'][0]['baseUrl']
+    AudioURl = video_json['data']['dash']['audio'][0]['baseUrl']
+
+    download(homeurl,AudioURl,names=pname,session=session) print(name)
 
     html = etree.HTML(res.content)
     video_xml = str(html.xpath('//html/head/script[4]/text()')[0])
